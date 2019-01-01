@@ -11,7 +11,7 @@ from cycler import cycler
 #   dz/dt = xy - bz
 
 # 時刻tまでのx,y,zのリストを返す
-def Lorenz(init_pos, p=10.0, r=28.0, b=8.0/3.0, t=100.0):
+def Lorenz(init_pos=[1, 1, 1], p=10.0, r=28.0, b=8.0/3.0, t=50.0):
     dt = 0.01
     nstep = int(t/dt)
 
@@ -38,8 +38,8 @@ def Lorenz(init_pos, p=10.0, r=28.0, b=8.0/3.0, t=100.0):
     return x, y, z, t
 
 def main():
-    init = [1, 1, 1]
-    x, y, z, t = Lorenz(init)
+    # init = [1, 1, 1]
+    x, y, z, t = Lorenz()
 
     # Plot
     fig = plt.figure()
