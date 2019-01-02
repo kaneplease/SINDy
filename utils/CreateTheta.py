@@ -52,6 +52,6 @@ def CreateTheta(x, order):
                             Theta = np.concatenate(
                                 (Theta, [[x[i][a] * x[j][a] * x[k][a] * x[l][a] * x[m][a] for a in range(n)]]), axis=0)
 
-
+    return Theta
 
 
