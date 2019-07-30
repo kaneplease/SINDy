@@ -33,7 +33,7 @@ def Lorenz(init_pos=[1, 1, 1], p=10.0, r=28.0, b=8.0/3.0, t=50.0):
         x[i+1] = x[i] + dx
         y[i+1] = y[i] + dy
         z[i+1] = z[i] + dz
-        t[i+1] = i*dt
+        t[i+1] = (i+1)*dt
 
     return x, y, z, t
 
