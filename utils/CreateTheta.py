@@ -23,32 +23,32 @@ def CreateTheta(x, order):
     # order 2
     if order >= 2:
         for i in range(xdim):
-            for j in range(xdim):
+            for j in range(i+1):    #　　木構造により場合の数を尽くす（ノート参照）
                 Theta = np.concatenate((Theta, [[x[i][a] * x[j][a] for a in range(n)]]), axis=0)
 
     # order 3
     if order >= 3:
         for i in range(xdim):
-            for j in range(xdim):
-                for k in range(xdim):
+            for j in range(i+1):
+                for k in range(j+1):
                     Theta = np.concatenate((Theta, [[x[i][a] * x[j][a] * x[k][a] for a in range(n)]]), axis=0)
 
     # order 4
     if order >= 4:
         for i in range(xdim):
-            for j in range(xdim):
-                for k in range(xdim):
-                    for l in range(xdim):
+            for j in range(i+1):
+                for k in range(j+1):
+                    for l in range(k+1):
                         Theta = np.concatenate((Theta, [[x[i][a] * x[j][a] * x[k][a] * x[l][a] for a in range(n)]]),
                                                axis=0)
 
     # order 5
     if order >= 5:
         for i in range(xdim):
-            for j in range(xdim):
-                for k in range(xdim):
-                    for l in range(xdim):
-                        for m in range(xdim):
+            for j in range(i+1):
+                for k in range(j+1):
+                    for l in range(k+1):
+                        for m in range(l+1):
                             Theta = np.concatenate(
                                 (Theta, [[x[i][a] * x[j][a] * x[k][a] * x[l][a] * x[m][a] for a in range(n)]]), axis=0)
 

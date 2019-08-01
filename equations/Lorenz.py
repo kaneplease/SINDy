@@ -12,7 +12,7 @@ from cycler import cycler
 
 # 時刻tまでのx,y,zのリストを返す
 def Lorenz(init_pos=[1, 1, 1], p=10.0, r=28.0, b=8.0/3.0, t=50.0):
-    dt = 0.01
+    dt = 0.001
     nstep = int(t/dt)
 
     x = [0] * (nstep + 1)
