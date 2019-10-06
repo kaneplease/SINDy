@@ -30,5 +30,3 @@ def SparsifyDynamics(Theta, dxdt, llambda):
             for n, xi_n in enumerate(useID):
                 Xi[i][xi_n] = xi_i.x[n]
     return Xi
-
-

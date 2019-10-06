@@ -54,4 +54,23 @@ def CreateTheta(x, order):
 
     return Theta
 
+def CreateTheta_normal(x, order):
+    Theta = CreateTheta(x, order)
+
+    Tshape = Theta.shape
+    norm_coef = []                                  #   正規化した係数を格納
+    Theta_norm = [[1.0 for j in range(Tshape[1])]]  #   データ数だけ格納、1.0が連続するので、標準化できない
+    for i in range(1, Tshape[0]):
+        Tmean = Theta[i].mean()
+        Tstd = Theta[i].std()
+
+        zscore_Theta = (Theta[i] - Tmean)/Tstd
+        norm_coef = np.concatenate((norm_coef, [[Tmean, Tstd]]), axis=0)
+        Theta_norm = np.concatenate((Theta_norm, zscore_Theta), axis=0)
+    return Theta_norm, norm_coef
+
+
+
+
+
 
