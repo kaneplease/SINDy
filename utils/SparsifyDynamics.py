@@ -14,7 +14,7 @@ def SparsifyDynamics(Theta, dxdt, llambda):
             Xi = np.append(Xi, np.array([xi_i.x]), axis=0)
 
     # 閾値以下は無視して、残ったものでもう一度回帰
-    for _ in range(3): #   10回回す様にする
+    for _ in range(10): #   10回回す様にする
         for i in range(xdim):
             useID = [n for n in range(len(Xi[i])) if abs(Xi[i][n]) > llambda]
             zeroID = [n for n in range(len(Xi[i])) if abs(Xi[i][n]) <= llambda]

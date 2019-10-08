@@ -63,32 +63,38 @@ def input_data(file_dir):
 
 def zscore_dX(dX):
     dXshape = dX.shape
-    dX_norm_coef = []
-    dX_norm = []
+    dX_norm_coef = np.zeros((1,2))
+    dX_norm = np.zeros((1,dXshape[1]))
     for i in range(dXshape[0]):
         dXmean = dX[i].mean()
         dXstd = dX[i].std()
 
         zscore_dX = (dX[i] - dXmean)/dXstd
-        dX_norm_coef = np.concatenate((dX_norm_coef, [[dXmean, dXstd]]), axis=0)
-        dX_norm = np.concatenate((dX_norm, zscore_dX), axis=0)
+        dX_norm_coef = np.concatenate([dX_norm_coef, np.array([[dXmean, dXstd]])], axis=0)
+        dX_norm = np.concatenate((dX_norm, np.array([zscore_dX])), axis=0)
+
+    dX_norm_coef = np.delete(dX_norm_coef, 0, 0)
+    dX_norm = np.delete(dX_norm, 0, 0)
     return dX_norm, dX_norm_coef
 
 f_list, f0_list, df_dt_list, vx_list, vy_list, vz_list\
     , df_dvx_list, df_dvy_list, df_dvz_list, d2f_dvxx_list\
-     , d2f_dvxy_list, d2f_dvyy_list, d2f_dvyz_list, d2f_dvzz_list, d2f_dvzx_list = input_data()
+     , d2f_dvxy_list, d2f_dvyy_list, d2f_dvyz_list, d2f_dvzz_list, d2f_dvzx_list = input_data(file_dir)
 
-Xlist = np.array([f_list, f0_list, df_dt_list, vx_list, vy_list, vz_list, df_dvx_list, df_dvy_list\
+Xlist = np.array([f_list, f0_list, df_dvx_list, df_dvy_list\
         , df_dvz_list, d2f_dvxx_list, d2f_dvxy_list, d2f_dvyy_list, d2f_dvyz_list, d2f_dvzz_list, d2f_dvzx_list])
-Xlist = np.delete(Xlist, -1, 1)  # 最後の行を削除してデータ数を合わせる
 
 #   dX/dtの項はこれしかない
 dXlist = np.array([df_dt_list])
 dXlist, _ = zscore_dX(dXlist)
 
 # Libraryの作成、標準化
-Theta, _ = ct.CreateTheta_normal(Xlist, 4)
-Xi = sd.SparsifyDynamics(Theta, dXlist, 0.01)
+Theta, _ = ct.CreateTheta_normal(Xlist, 2)
+Xi = sd.SparsifyDynamics(Theta, dXlist,10.0)
 
-for i in range(15):
+print(dXlist)
+
+for i in range(0):
     print(Xi[i][:-1])
+
+np.savetxt('result/Xi.txt',Xi)
