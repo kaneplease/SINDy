@@ -24,6 +24,7 @@ def SparsifyDynamics(Theta, dxdt, llambda):
                 Xi[i][j] = 0
             #   Thetaの中で必要なものだけをまとめる
             Theta_tmp = np.array([Theta[n] for n in useID])
+            print(Theta_tmp.shape, dxdt[i].shape)
             #   もう一度回帰
             xi_i = lsq_linear(Theta_tmp.T, dxdt[i])
             #   Xiに代入

@@ -27,21 +27,21 @@ def input_data(file_dir):
     d2f_dvzz_list = np.load(file_dir + 'd2f_dvzz_list.npy')
     d2f_dvzx_list = np.load(file_dir + 'd2f_dvzx_list.npy')
 
-    f_list = f_list[::5, ::20, ::20, ::20]
-    f0_list = f0_list[::5, ::20, ::20, ::20]
-    df_dt_list = df_dt_list[::5, ::20, ::20, ::20]
-    vx_list = vx_list[::5, ::20, ::20, ::20]
-    vy_list = vy_list[::5, ::20, ::20, ::20]
-    vz_list = vz_list[::5, ::20, ::20, ::20]
-    df_dvx_list = df_dvx_list[::5, ::20, ::20, ::20]
-    df_dvy_list = df_dvy_list[::5, ::20, ::20, ::20]
-    df_dvz_list = df_dvz_list[::5, ::20, ::20, ::20]
-    d2f_dvxx_list = d2f_dvxx_list[::5, ::20, ::20, ::20]
-    d2f_dvxy_list = d2f_dvxy_list[::5, ::20, ::20, ::20]
-    d2f_dvyy_list = d2f_dvyy_list[::5, ::20, ::20, ::20]
-    d2f_dvyz_list = d2f_dvyz_list[::5, ::20, ::20, ::20]
-    d2f_dvzz_list = d2f_dvzz_list[::5, ::20, ::20, ::20]  # もしかしたらzxにしていたかも？？要チェック
-    d2f_dvzx_list = d2f_dvzx_list[::5, ::20, ::20, ::20]
+    f_list = f_list[::2, ::5, ::5, ::5]
+    f0_list = f0_list[::2, ::5, ::5, ::5]
+    df_dt_list = df_dt_list[::2, ::5, ::5, ::5]
+    vx_list = vx_list[::2, ::5, ::5, ::5]
+    vy_list = vy_list[::2, ::5, ::5, ::5]
+    vz_list = vz_list[::2, ::5, ::5, ::5]
+    df_dvx_list = df_dvx_list[::2, ::5, ::5, ::5]
+    df_dvy_list = df_dvy_list[::2, ::5, ::5, ::5]
+    df_dvz_list = df_dvz_list[::2, ::5, ::5, ::5]
+    d2f_dvxx_list = d2f_dvxx_list[::2, ::5, ::5, ::5]
+    d2f_dvxy_list = d2f_dvxy_list[::2, ::5, ::5, ::5]
+    d2f_dvyy_list = d2f_dvyy_list[::2, ::5, ::5, ::5]
+    d2f_dvyz_list = d2f_dvyz_list[::2, ::5, ::5, ::5]
+    d2f_dvzz_list = d2f_dvzz_list[::2, ::5, ::5, ::5]  # もしかしたらzxにしていたかも？？要チェック
+    d2f_dvzx_list = d2f_dvzx_list[::2, ::5, ::5, ::5]
 
     f_list = f_list.ravel()
     f0_list = f0_list.ravel()
@@ -91,13 +91,16 @@ dXlist, _ = zscore_dX(dXlist)
 
 # Libraryの作成、標準化
 Theta, _ = ct.CreateTheta_normal(Xlist, 2)
-Xi = sd.SparsifyDynamics(Theta, dXlist,10.0)
+Xi = sd.SparsifyDynamics(Theta, dXlist,0.1)
 
 #推定されたdXdt
 infer_dXdt = np.dot(Xi, Theta)
 
-plt.plot(dXlist[0])
-plt.plot(infer_dXdt[0])
+plt.plot(dXlist[0], alpha=0.3)
+plt.savefig("result/true.png")
+plt.show()
+plt.plot(infer_dXdt[0], alpha=0.3)
+plt.savefig("result/infer.png")
 plt.show()
 
 
