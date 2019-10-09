@@ -3,6 +3,7 @@ from numpy.random import *
 import os
 from utils import *
 from equations import Lorenz as Lr
+import matplotlib.pyplot as plt
 
 # dataディレクトリからデータの読み込み
 current_path = os.getcwd()
@@ -92,7 +93,13 @@ dXlist, _ = zscore_dX(dXlist)
 Theta, _ = ct.CreateTheta_normal(Xlist, 2)
 Xi = sd.SparsifyDynamics(Theta, dXlist,10.0)
 
-print(dXlist)
+#推定されたdXdt
+infer_dXdt = np.dot(Xi, Theta)
+
+plt.plot(dXlist[0])
+plt.plot(infer_dXdt[0])
+plt.show()
+
 
 for i in range(0):
     print(Xi[i][:-1])
