@@ -104,21 +104,21 @@ plt.savefig("result/infer.png")
 plt.show()
 
 
-for i in range(0):
-    print(Xi[i][:-1])
+#for i in range(0):
+#    print(Xi[i][:-1])
+print(Xi[0][:-1])
 
 #   Xiの有次元バージョンを作成(まずは容量の確保)
 Xi_dim = np.zeros(Xi.shape)
 #   1.0の係数
-Xi_dim[0] = dX_norm_coef[0][0]
-for i in range(Xi.shape[0]):
-    #   1.0の係数はどうせ0
-    Xi_dim[0] -= dX_norm_coef[0][1]*Xi[0][i]*Theta_norm_coef[i][0]/Theta_norm_coef[i][1]
+Xi_dim[0][0] = dX_norm_coef[0][0]
+for i in range(1, Xi.shape[0]):
+    Xi_dim[0][0] -= dX_norm_coef[0][1]*Xi[0][i]*Theta_norm_coef[i][0]/Theta_norm_coef[i][1]
 #   他の係数
 for i in range(1, Xi.shape[0]):
-    Xi_dim[i] = dX_norm_coef[0][1]*Xi[0][i]/Theta_norm_coef[i][1]
+    Xi_dim[0][i] = dX_norm_coef[0][1]*Xi[0][i]/Theta_norm_coef[i][1]
+    print(Xi_dim[0][i])
 
-print(Xi[0][:-1])
 print(Xi_dim[0][:-1])
 
 np.savetxt('result/Xi.txt',Xi)
