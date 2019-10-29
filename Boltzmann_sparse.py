@@ -91,7 +91,7 @@ dXlist, _ = zscore_dX(dXlist)
 
 # Libraryの作成、標準化
 Theta, _ = ct.CreateTheta_normal(Xlist, 2)
-Xi = sd.SparsifyDynamics(Theta, dXlist,0.1)
+Xi = sd.SparsifyDynamics(Theta, dXlist,0.3)
 
 #推定されたdXdt
 infer_dXdt = np.dot(Xi, Theta)
