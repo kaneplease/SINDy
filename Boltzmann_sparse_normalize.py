@@ -113,6 +113,7 @@ Xi_dim = np.zeros(Xi.shape)
 #   1.0の係数
 Xi_dim[0][0] = dX_norm_coef[0][0]
 for i in range(1, Xi.shape[1]):
+    print(Xi_dim[0][0])
     Xi_dim[0][0] -= dX_norm_coef[0][1]*Xi[0][i]*Theta_norm_coef[i][0]/Theta_norm_coef[i][1]
 #   他の係数
 for i in range(1, Xi.shape[1]):
