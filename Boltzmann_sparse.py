@@ -87,10 +87,10 @@ Xlist = np.array([f_list, f0_list, df_dvx_list, df_dvy_list\
 
 #   dX/dtの項はこれしかない
 dXlist = np.array([df_dt_list])
-dXlist, _ = zscore_dX(dXlist)
+dXlist, dX_norm_coef = zscore_dX(dXlist)
 
 # Libraryの作成、標準化
-Theta, _ = ct.CreateTheta_normal(Xlist, 2)
+Theta, Theta_norm_coef = ct.CreateTheta_normal(Xlist, 2)
 Xi = sd.SparsifyDynamics(Theta, dXlist,0.1)
 
 #推定されたdXdt
@@ -106,5 +106,18 @@ plt.show()
 
 for i in range(0):
     print(Xi[i][:-1])
+
+#   Xiの有次元バージョンを作成(まずは容量の確保)
+Xi_dim = Xi
+#   1.0の係数
+Xi_dim[0] = dX_norm_coef[0][0]
+for i in range(Xi.shape[0]):
+    Xi_dim[0] -= dX_norm_coef[0][1]*Xi[0][i]*Theta_norm_coef[i][0]/Theta_norm_coef[i][1]   #   1.0の係数はどうせ0
+#   他の係数
+for i in range(1, Xi.shape[0]):
+    Xi_dim[i] = dX_norm_coef[0][1]*Xi[0][i]/Theta_norm_coef[i][1]
+
+print(Xi[0][:-1])
+print(Xi_dim[0][:-1])
 
 np.savetxt('result/Xi.txt',Xi)
