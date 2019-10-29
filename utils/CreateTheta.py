@@ -13,7 +13,7 @@ def CreateTheta(x, order):
     # Theta = np.array([])
 
     # order 0
-    tmp = [[1.0 for j in range(n)]]
+    tmp = [[1.0 for j in range(n)]] 
     Theta = tmp
 
     # order 1
@@ -54,11 +54,12 @@ def CreateTheta(x, order):
 
     return Theta
 
+#   全ての係数をmu = 0, std = 1で正規化（時間軸に沿って）
 def CreateTheta_normal(x, order):
     Theta = CreateTheta(x, order)
 
     Tshape = Theta.shape
-    norm_coef = np.zeros((1,2))                                  #   正規化した係数を格納
+    norm_coef = np.zeros((1,2))                     #   正規化した係数を格納
     Theta_norm = [[1.0 for j in range(Tshape[1])]]  #   データ数だけ格納、1.0が連続するので、標準化できない
     for i in range(1, Tshape[0]):
         Tmean = Theta[i].mean()
