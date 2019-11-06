@@ -93,7 +93,8 @@ Xlist = np.array([f_list, f0_list, df_dvx_list, df_dvy_list\
 dXlist = np.array([df_dt_list])
 
 # Libraryの作成、標準化
-Theta = ct.CreateTheta(Xlist, 2)
+# Theta = ct.CreateTheta(Xlist, 2)
+Theta = ct.CreateTheta_noConst(Xlist, 2)
 Xi = sd.SparsifyDynamics(Theta, dXlist, 1.0e-4)
 
 #推定されたdXdt
