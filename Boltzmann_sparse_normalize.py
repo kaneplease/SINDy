@@ -96,12 +96,12 @@ Xi = sd.SparsifyDynamics(Theta, dXlist,0.1)
 #推定されたdXdt
 infer_dXdt = np.dot(Xi, Theta)
 
-#plt.plot(dXlist[0], alpha=0.3)
-#plt.savefig("result/true.png")
-#plt.show()
-#plt.plot(infer_dXdt[0], alpha=0.3)
-#plt.savefig("result/infer.png")
-#plt.show()
+plt.plot(dXlist[0], alpha=0.3)
+plt.savefig("result/true.png")
+plt.show()
+plt.plot(infer_dXdt[0], alpha=0.3)
+plt.savefig("result/infer.png")
+plt.show()
 
 
 #for i in range(0):
@@ -113,7 +113,7 @@ Xi_dim = np.zeros(Xi.shape)
 #   1.0の係数
 Xi_dim[0][0] = dX_norm_coef[0][0]
 for i in range(1, Xi.shape[1]):
-    print(Xi_dim[0][0])
+#    print(Xi[0][i])
     Xi_dim[0][0] -= dX_norm_coef[0][1]*Xi[0][i]*Theta_norm_coef[i][0]/Theta_norm_coef[i][1]
 #   他の係数
 for i in range(1, Xi.shape[1]):
