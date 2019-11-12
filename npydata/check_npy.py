@@ -34,10 +34,25 @@ def check_mass_conserv(file_dir):
     plt.plot(mass)
     plt.show()
 
+def check_mass_f(file_dir):
+    f_list = np.load(file_dir + 'f_list.npy')
+    mass = []
+    f_shape = f_list.shape
+    for l in range(f_shape[0]):
+        tmp = 0
+        for i in range(f_shape[1]):
+            for j in range(f_shape[2]):
+                for k in range(f_shape[3]):
+                    tmp += f_list[l][i][j][k]
+        mass.append(tmp)
+    plt.plot(mass)
+    plt.show()
+
 def main():
     file_dir = "./"
     # visualize(file_dir)
-    check_mass_conserv(file_dir)
+    # check_mass_conserv(file_dir)
+    check_mass_f(file_dir)
 
 if __name__=='__main__':
     main()
