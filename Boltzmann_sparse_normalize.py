@@ -23,21 +23,21 @@ def input_data(file_dir):
     d2f_dvzz_list = np.load(file_dir + 'd2f_dvzz_list.npy')
     d2f_dvzx_list = np.load(file_dir + 'd2f_dvzx_list.npy')
 
-    f_list = f_list[::2, ::5, ::5, ::5]
-    f0_list = f0_list[::2, ::5, ::5, ::5]
-    df_dt_list = df_dt_list[::2, ::5, ::5, ::5]
-    vx_list = vx_list[::2, ::5, ::5, ::5]
-    vy_list = vy_list[::2, ::5, ::5, ::5]
-    vz_list = vz_list[::2, ::5, ::5, ::5]
-    df_dvx_list = df_dvx_list[::2, ::5, ::5, ::5]
-    df_dvy_list = df_dvy_list[::2, ::5, ::5, ::5]
-    df_dvz_list = df_dvz_list[::2, ::5, ::5, ::5]
-    d2f_dvxx_list = d2f_dvxx_list[::2, ::5, ::5, ::5]
-    d2f_dvxy_list = d2f_dvxy_list[::2, ::5, ::5, ::5]
-    d2f_dvyy_list = d2f_dvyy_list[::2, ::5, ::5, ::5]
-    d2f_dvyz_list = d2f_dvyz_list[::2, ::5, ::5, ::5]
-    d2f_dvzz_list = d2f_dvzz_list[::2, ::5, ::5, ::5]  # もしかしたらzxにしていたかも？？要チェック
-    d2f_dvzx_list = d2f_dvzx_list[::2, ::5, ::5, ::5]
+    f_list = f_list[::2, ::4, ::4, ::4]
+    f0_list = f0_list[::2, ::4, ::4, ::4]
+    df_dt_list = df_dt_list[::2, ::4, ::4, ::4]
+    vx_list = vx_list[::2, ::4, ::4, ::4]
+    vy_list = vy_list[::2, ::4, ::4, ::4]
+    vz_list = vz_list[::2, ::4, ::4, ::4]
+    df_dvx_list = df_dvx_list[::2, ::4, ::4, ::4]
+    df_dvy_list = df_dvy_list[::2, ::4, ::4, ::4]
+    df_dvz_list = df_dvz_list[::2, ::4, ::4, ::4]
+    d2f_dvxx_list = d2f_dvxx_list[::2, ::4, ::4, ::4]
+    d2f_dvxy_list = d2f_dvxy_list[::2, ::4, ::4, ::4]
+    d2f_dvyy_list = d2f_dvyy_list[::2, ::4, ::4, ::4]
+    d2f_dvyz_list = d2f_dvyz_list[::2, ::4, ::4, ::4]
+    d2f_dvzz_list = d2f_dvzz_list[::2, ::4, ::4, ::4]  # もしかしたらzxにしていたかも？？要チェック
+    d2f_dvzx_list = d2f_dvzx_list[::2, ::4, ::4, ::4]
 
     f_list = f_list.ravel()
     f0_list = f0_list.ravel()
@@ -167,11 +167,22 @@ def Apply_normalize_result():
     # 推定されたdXdt
     infer_dXdt = np.dot(Xi, Theta)
 
-    plt.plot(dXlist[0][0:10000], alpha=0.3)
+    # test
+    Xi_test = np.zeros(Xi.shape)    #    Xi_2 = Xi のようにかくとメモリが同じになってしまう
+    Xi_test[0][1] = -4.0
+    Xi_test[0][2] = 4.0
+    test_dXdt = np.dot(Xi_test, Theta)
+
+
+
+    plt.plot(dXlist[0][90000:110000], alpha=0.3)
     plt.savefig("result/true.png")
     plt.show()
-    plt.plot(infer_dXdt[0][0:10000], alpha=0.3)
+    plt.plot(infer_dXdt[0][90000:110000], alpha=0.3)
     plt.savefig("result/infer.png")
+    plt.show()
+    plt.plot(test_dXdt[0][90000:110000], alpha=0.3)
+    plt.savefig("result/test.png")
     plt.show()
 
     # for i in range(0):
@@ -180,11 +191,9 @@ def Apply_normalize_result():
 
     np.savetxt('result/Xi.txt', Xi)
 
-
 def main():
     Apply_normalize_result()
     # Boltzmann_sparse_normalize()
-
 
 if __name__=='__main__':
     main()
