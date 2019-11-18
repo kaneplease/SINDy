@@ -92,7 +92,7 @@ def Boltzmann_sparse_normalize():
 
     # Libraryの作成、標準化
     Theta, Theta_norm_coef = ct.CreateTheta_normal(Xlist, 2)
-    Xi = sd.SparsifyDynamics(Theta, dXlist,0.05)
+    Xi = sd.SparsifyDynamics(Theta, dXlist,0.2)
 
     #推定されたdXdt
     infer_dXdt = np.dot(Xi, Theta)
