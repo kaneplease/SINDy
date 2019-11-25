@@ -10,7 +10,7 @@ def SparsifyDynamics(Theta, dxdt, llambda):
     xdim = len(dxdt)
     par_num = len(Theta[0])
 
-    opt_num = 1  # [0: lsq_linear, 1: leastsq]
+    opt_num = 0  # [0: lsq_linear, 1: leastsq]
 
     # 初期解
     for i in range(xdim):

@@ -50,7 +50,7 @@ def check_mass_f(file_dir):
 
 def main():
     file_dir = "./"
-    # visualize(file_dir)
+    visualize(file_dir)
     # check_mass_conserv(file_dir)
     check_mass_f(file_dir)
 

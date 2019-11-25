@@ -58,6 +58,30 @@ def input_data(file_dir):
     return f_list, f0_list, df_dt_list, vx_list, vy_list, vz_list, df_dvx_list, df_dvy_list\
         , df_dvz_list, d2f_dvxx_list, d2f_dvxy_list, d2f_dvyy_list, d2f_dvyz_list, d2f_dvzz_list, d2f_dvzx_list
 
+def input_symmetric(file_dir):
+    f_list, f0_list, df_dt_list, vx_list, vy_list, vz_list\
+        , df_dvx_list, df_dvy_list, df_dvz_list, d2f_dvxx_list\
+         , d2f_dvxy_list, d2f_dvyy_list, d2f_dvyz_list, d2f_dvzz_list, d2f_dvzx_list = input_data(file_dir)
+    #   各変数には，x,y,zの順で高い次数の対称式を組み込む
+    vx_list = vx_list + vy_list + vz_list
+    vy_list = vx_list*vy_list + vy_list*vz_list + vz_list*vx_list
+    vz_list = vx_list*vy_list*vz_list
+
+    df_dvx_list = df_dvx_list + df_dvy_list + df_dvz_list
+    df_dvy_list = df_dvx_list*df_dvy_list + df_dvy_list*df_dvz_list + df_dvz_list*df_dvx_list
+    df_dvz_list = df_dvx_list*df_dvy_list*df_dvz_list
+
+    d2f_dvxx_list = d2f_dvxx_list + d2f_dvyy_list + d2f_dvzz_list
+    d2f_dvyy_list = d2f_dvxx_list*d2f_dvyy_list + d2f_dvyy_list*d2f_dvzz_list + d2f_dvzz_list*d2f_dvxx_list
+    d2f_dvzz_list = d2f_dvxx_list*d2f_dvyy_list*d2f_dvzz_list
+
+    d2f_dvxy_list = d2f_dvxy_list + d2f_dvyz_list + d2f_dvzx_list
+    d2f_dvyz_list = d2f_dvxy_list*d2f_dvyz_list + d2f_dvyz_list*d2f_dvzx_list + d2f_dvzx_list*d2f_dvxy_list
+    d2f_dvzx_list = d2f_dvxy_list*d2f_dvyz_list*d2f_dvzx_list
+
+    return f_list, f0_list, df_dt_list, vx_list, vy_list, vz_list, df_dvx_list, df_dvy_list\
+        , df_dvz_list, d2f_dvxx_list, d2f_dvxy_list, d2f_dvyy_list, d2f_dvyz_list, d2f_dvzz_list, d2f_dvzx_list
+
 def zscore_dX(dX):
     dXshape = dX.shape
     dX_norm_coef = np.zeros((1,2))
@@ -130,7 +154,7 @@ def Boltzmann_sparse_normalize():
 #   Sparsify_Dynamicsとは違い、XiやdXlistは[0][i]の形になってる
 def Apply_normalize_result():
     # 最適化手法の選択
-    opt_num = 1  # [0: lsq_linear, 1: leastsq]
+    opt_num = 0  # [0: lsq_linear, 1: leastsq]
 
     # dataディレクトリからデータの読み込み
     current_path = os.getcwd()
@@ -198,8 +222,79 @@ def Apply_normalize_result():
 
     np.savetxt('result/Xi.txt', Xi)
 
+def Apply_normalize_result_sym():
+    # 最適化手法の選択
+    opt_num = 0  # [0: lsq_linear, 1: leastsq]
+
+    # dataディレクトリからデータの読み込み
+    current_path = os.getcwd()
+    file_dir = current_path + "/npydata/"
+
+    f_list, f0_list, df_dt_list, vx_list, vy_list, vz_list\
+        , df_dvx_list, df_dvy_list, df_dvz_list, d2f_dvxx_list\
+         , d2f_dvxy_list, d2f_dvyy_list, d2f_dvyz_list, d2f_dvzz_list, d2f_dvzx_list = input_symmetric(file_dir)
+
+    Xlist = np.array([f_list, f0_list, df_dvx_list, df_dvy_list\
+            , df_dvz_list, d2f_dvxx_list, d2f_dvxy_list, d2f_dvyy_list, d2f_dvyz_list, d2f_dvzz_list, d2f_dvzx_list])
+
+    #   dX/dtの項はこれしかない
+    dXlist = np.array([df_dt_list])
+
+    # Libraryの作成、標準化
+    Theta = ct.CreateTheta(Xlist, 2)
+
+    Xi = Boltzmann_sparse_normalize()
+    # Xi = np.loadtxt('result/Xi.txt')  #   txtファイルからの読み込みにすると１次元の行列になってしまう
+    Xi_0_1 = np.reshape(np.array([1 if x != 0 else 0 for x in Xi[0]]), Xi.shape)
+
+    useID = [n for n in range(len(Xi_0_1[0])) if Xi_0_1[0][n] == 1]
+    zeroID = [n for n in range(len(Xi_0_1[0])) if Xi_0_1[0][n] == 0]
+
+    #   係数Xiの不要な部分を全てゼロに
+    for j in zeroID:
+        Xi[0][j] = 0
+    #   Thetaの中で必要なものだけをまとめる
+    Theta_tmp = np.array([Theta[n] for n in useID])
+    #   もう一度回帰
+    if opt_num == 0:
+        xi_i = lsq_linear(Theta_tmp.T, dXlist[0])
+        xi_i = xi_i.x
+    elif opt_num == 1:
+        xi_i = sd.leastsq_for_matrix(Theta_tmp, dXlist[0])
+        xi_i = xi_i[0]
+    #   Xiに代入
+    for n, xi_n in enumerate(useID):
+        Xi[0][xi_n] = xi_i[n]
+
+    # 推定されたdXdt
+    infer_dXdt = np.dot(Xi, Theta)
+
+    # test
+    Xi_test = np.zeros(Xi.shape)    #    Xi_2 = Xi のようにかくとメモリが同じになってしまう
+    Xi_test[0][1] = -4.0
+    Xi_test[0][2] = 4.0
+    test_dXdt = np.dot(Xi_test, Theta)
+
+
+    plt.plot(dXlist[0][:110000], alpha=0.3)
+    plt.savefig("result/true.png")
+    plt.show()
+    plt.plot(infer_dXdt[0][:110000], alpha=0.3)
+    plt.savefig("result/infer.png")
+    plt.show()
+    plt.plot(test_dXdt[0][:110000], alpha=0.3)
+    plt.savefig("result/test.png")
+    plt.show()
+
+    # for i in range(0):
+    #    print(Xi[i][:-1])
+    print(Xi[0][:-1])
+
+    np.savetxt('result/Xi.txt', Xi)
+
 def main():
-    Apply_normalize_result()
+    # Apply_normalize_result()
+    Apply_normalize_result_sym()
     # Boltzmann_sparse_normalize()
 
 if __name__=='__main__':
