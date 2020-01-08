@@ -5,10 +5,13 @@ from utils import *
 from scipy.optimize import lsq_linear
 from equations import Lorenz as Lr
 import matplotlib.pyplot as plt
+from pathlib import Path
+import re
 
 def input_data(file_dir):
     f_list = np.load(file_dir + 'f_list.npy')
     f0_list = np.load(file_dir + 'f0_list.npy')
+    #   df_dt_list = np.load(file_dir + 'df_dt_list.npy')
     df_dt_list = np.load(file_dir + 'df_dt_list_noBGK.npy')
     vx_list = np.load(file_dir + 'vx_list.npy')
     vy_list = np.load(file_dir + 'vy_list.npy')
@@ -58,6 +61,34 @@ def input_data(file_dir):
     return f_list, f0_list, df_dt_list, vx_list, vy_list, vz_list, df_dvx_list, df_dvy_list\
         , df_dvz_list, d2f_dvxx_list, d2f_dvxy_list, d2f_dvyy_list, d2f_dvyz_list, d2f_dvzz_list, d2f_dvzx_list
 
+#   自動的にnpydataのファイルを読み込む
+#   対称式にしたい場合は前もって処理しておく
+def input_auto(file_dir):
+    #   ディレクトリ内に何のファイルがあるか取得する
+    #   BGKSolverで係数を読み込む際には順番に注意する
+    p = Path(file_dir)
+    npy_data_list = sorted(list(p.glob("*.npy")))
+    for i,npy_path in enumerate(npy_data_list):
+        print(str(npy_path))
+        m = re.search("df_dt_list_noBGK.npy", str(npy_path))
+        if m:
+            target = np.load(npy_path)
+            target = target[::2, ::2, ::2, ::2]
+            target = target.ravel()
+            continue
+        else:
+            pass
+        tmp = np.load(npy_path)
+        tmp = tmp[::2, ::2, ::2, ::2]
+        tmp = [tmp.ravel().tolist()]
+        if i == 0:
+            data = tmp
+        else:
+            data = np.vstack((data, tmp))
+    # data = np.delete(data, 0, 0)
+    return data, target
+
+
 def input_symmetry(file_dir):
     f_list, f0_list, df_dt_list, vx_list, vy_list, vz_list\
         , df_dvx_list, df_dvy_list, df_dvz_list, d2f_dvxx_list\
@@ -98,32 +129,36 @@ def zscore_dX(dX):
     dX_norm = np.delete(dX_norm, 0, 0)
     return dX_norm, dX_norm_coef
 
-def Boltzmann_sparse_normalize(input_method="input_data"):
+def Boltzmann_sparse_normalize(Xlist, dXlist):       # input_method="input_data"
     # dataディレクトリからデータの読み込み
     current_path = os.getcwd()
     file_dir = current_path + "/npydata/"
 
-    if input_method=="input_data":
-        f_list, f0_list, df_dt_list, vx_list, vy_list, vz_list\
-            , df_dvx_list, df_dvy_list, df_dvz_list, d2f_dvxx_list\
-             , d2f_dvxy_list, d2f_dvyy_list, d2f_dvyz_list, d2f_dvzz_list, d2f_dvzx_list = input_data(file_dir)
-    elif input_method=="input_symmetry":
-        f_list, f0_list, df_dt_list, vx_list, vy_list, vz_list \
-            , df_dvx_list, df_dvy_list, df_dvz_list, d2f_dvxx_list \
-            , d2f_dvxy_list, d2f_dvyy_list, d2f_dvyz_list, d2f_dvzz_list, d2f_dvzx_list = input_symmetry(file_dir)
-    else:
-        raise Exception("Input method is invalid")
-
-    Xlist = np.array([f_list, f0_list, df_dvx_list, df_dvy_list\
-            , df_dvz_list, d2f_dvxx_list, d2f_dvxy_list, d2f_dvyy_list, d2f_dvyz_list, d2f_dvzz_list, d2f_dvzx_list])
+    # if input_method=="input_data":
+    #     f_list, f0_list, df_dt_list, vx_list, vy_list, vz_list\
+    #         , df_dvx_list, df_dvy_list, df_dvz_list, d2f_dvxx_list\
+    #          , d2f_dvxy_list, d2f_dvyy_list, d2f_dvyz_list, d2f_dvzz_list, d2f_dvzx_list = input_data(file_dir)
+    # elif input_method=="input_symmetry":
+    #     f_list, f0_list, df_dt_list, vx_list, vy_list, vz_list \
+    #         , df_dvx_list, df_dvy_list, df_dvz_list, d2f_dvxx_list \
+    #         , d2f_dvxy_list, d2f_dvyy_list, d2f_dvyz_list, d2f_dvzz_list, d2f_dvzx_list = input_symmetry(file_dir)
+    # else:
+    #     raise Exception("Input method is invalid")
+    #
+    # Xlist = np.array([f_list, f0_list, df_dvx_list, df_dvy_list\
+    #         , df_dvz_list, d2f_dvxx_list, d2f_dvxy_list, d2f_dvyy_list, d2f_dvyz_list, d2f_dvzz_list, d2f_dvzx_list])
 
     #   dX/dtの項はこれしかない
-    dXlist = np.array([df_dt_list])
+    # dXlist = np.array([df_dt_list])
     dXlist, dX_norm_coef = zscore_dX(dXlist)
 
     # Libraryの作成、標準化
     Theta, Theta_norm_coef = ct.CreateTheta_normal(Xlist, 2)
+<<<<<<< HEAD
     Xi = sd.SparsifyDynamics(Theta, dXlist,0.05)
+=======
+    Xi = sd.SparsifyDynamics(Theta, dXlist, 0.25)
+>>>>>>> af5b93e2cbdb91d87749fb9c8c3dfda0daa5e632
 
     #推定されたdXdt
     infer_dXdt = np.dot(Xi, Theta)
@@ -180,7 +215,8 @@ def Apply_normalize_result():
     # Libraryの作成、標準化
     Theta = ct.CreateTheta(Xlist, 2)
 
-    Xi = Boltzmann_sparse_normalize(input_method="input_data")
+    # Xi = Boltzmann_sparse_normalize(input_method="input_data")
+    Xi = Boltzmann_sparse_normalize(Xlist, dXlist)
     # Xi = np.loadtxt('result/Xi.txt')  #   txtファイルからの読み込みにすると１次元の行列になってしまう
     Xi_0_1 = np.reshape(np.array([1 if x != 0 else 0 for x in Xi[0]]), Xi.shape)
 
@@ -237,20 +273,23 @@ def Apply_normalize_result_sym():
     current_path = os.getcwd()
     file_dir = current_path + "/npydata/"
 
-    f_list, f0_list, df_dt_list, vx_list, vy_list, vz_list\
-        , df_dvx_list, df_dvy_list, df_dvz_list, d2f_dvxx_list\
-         , d2f_dvxy_list, d2f_dvyy_list, d2f_dvyz_list, d2f_dvzz_list, d2f_dvzx_list = input_symmetry(file_dir)
+    # f_list, f0_list, df_dt_list, vx_list, vy_list, vz_list\
+    #     , df_dvx_list, df_dvy_list, df_dvz_list, d2f_dvxx_list\
+    #      , d2f_dvxy_list, d2f_dvyy_list, d2f_dvyz_list, d2f_dvzz_list, d2f_dvzx_list = input_symmetry(file_dir)
+    # Xlist = np.array([f_list, f0_list, df_dvx_list, df_dvy_list\
+    #         , df_dvz_list, d2f_dvxx_list, d2f_dvxy_list, d2f_dvyy_list, d2f_dvyz_list, d2f_dvzz_list, d2f_dvzx_list])
 
-    Xlist = np.array([f_list, f0_list, df_dvx_list, df_dvy_list\
-            , df_dvz_list, d2f_dvxx_list, d2f_dvxy_list, d2f_dvyy_list, d2f_dvyz_list, d2f_dvzz_list, d2f_dvzx_list])
+    Xlist, df_ft_list = input_auto(file_dir)
 
     #   dX/dtの項はこれしかない
-    dXlist = np.array([df_dt_list])
+    dXlist = np.array([df_ft_list])
 
     # Libraryの作成、標準化
     Theta = ct.CreateTheta(Xlist, 2)
 
-    Xi = Boltzmann_sparse_normalize(input_method="input_symmetry")
+    # Xi = Boltzmann_sparse_normalize(input_method="input_symmetry")
+    Xi = Boltzmann_sparse_normalize(Xlist, dXlist)
+
     # Xi = np.loadtxt('result/Xi.txt')  #   txtファイルからの読み込みにすると１次元の行列になってしまう
     Xi_0_1 = np.reshape(np.array([1 if x != 0 else 0 for x in Xi[0]]), Xi.shape)
 
@@ -303,6 +342,13 @@ def main():
     # Apply_normalize_result()
     Apply_normalize_result_sym()
     # Boltzmann_sparse_normalize()
+
+    # # dataディレクトリからデータの読み込み
+    # current_path = os.getcwd()
+    # file_dir = current_path + "/npydata/"
+    # data, target = input_auto(file_dir)
+    # print(data.shape)
+    # print(target.shape)
 
 if __name__=='__main__':
     main()
