@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 def input_data(file_dir):
     f_list = np.load(file_dir + 'f_list.npy')
     f0_list = np.load(file_dir + 'f0_list.npy')
-    df_dt_list = np.load(file_dir + 'df_dt_list.npy')
+    df_dt_list = np.load(file_dir + 'df_dt_list_noBGK.npy')
     vx_list = np.load(file_dir + 'vx_list.npy')
     vy_list = np.load(file_dir + 'vy_list.npy')
     vz_list = np.load(file_dir + 'vz_list.npy')
@@ -123,7 +123,7 @@ def Boltzmann_sparse_normalize(input_method="input_data"):
 
     # Libraryの作成、標準化
     Theta, Theta_norm_coef = ct.CreateTheta_normal(Xlist, 2)
-    Xi = sd.SparsifyDynamics(Theta, dXlist,0.5)
+    Xi = sd.SparsifyDynamics(Theta, dXlist,0.05)
 
     #推定されたdXdt
     infer_dXdt = np.dot(Xi, Theta)
